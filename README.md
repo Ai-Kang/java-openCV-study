@@ -190,3 +190,137 @@ private static void test4() {
     Imgcodecs.imwrite("image/tets_line.png", m1);
 }
 ```
+## 图像基础处理基础
+```text
+图像加法：Core.add(Mat stc,mat m2,Mat dst);
+图像混合：Core.addWeighted(Mat stc,double alpha,Mat m2,double beta,double gamma,Mat dst);
+图像反相：Core.bitwise_not(Mat stc,Mat dst);
+图像平移：将图像的所有像素点按照给定的平移量移动
+旋转：Imgproc.warpAffine(Mat stc,Mat dst,Mat m,Size dsize,int flags);
+缩放：Imgproc.resize(Mat stc,Mat dst,Size dsize);
+```
+### 图像相加
+```java
+  public static void main(String[] args) {
+        // 图像相加
+        Mat m1 = Imgcodecs.imread("image/person_and_dog_min.png");
+        Mat m2 = Imgcodecs.imread("image/person_and_dog_min_GRAYSCALE.png");
+        Mat m3 = new Mat();
+        Core.add(m1, m2,m3);
+        HighGui.imshow("png", m3);
+        HighGui.waitKey(0);
+    }
+```
+### 图像混合
+```java
+   public static void main(String[] args) {
+        Mat m1 = Imgcodecs.imread("image/person_and_dog_min.png");
+        Mat m2 = Imgcodecs.imread("image/person_and_dog_min_GRAYSCALE.png");
+        Mat m3 = new Mat();
+        Core.addWeighted(m1, 0.5, m2, 0.7,0 , m3);
+        HighGui.imshow("png", m3);
+        HighGui.waitKey(0);
+    }
+```
+### 图像反相，类似底片
+```java
+   public static void main(String[] args) {
+        Mat m1 = Imgcodecs.imread("image/person_and_dog_min.png");
+//        Mat m2 = Imgcodecs.imread("image/person_and_dog_min_GRAYSCALE.png");
+        Mat m3 = new Mat();
+        Core.bitwise_not(m1, m3);
+        HighGui.imshow("png", m3);
+        HighGui.waitKey(0);
+    }
+```
+### 图像平移
+```java
+
+```
+### 图像旋转和缩放
+```java
+    public static void main(String[] args) {
+        Mat m1 = Imgcodecs.imread("image/person_and_dog_min.png");
+//        Mat m2 = Imgcodecs.imread("image/person_and_dog_min_GRAYSCALE.png");
+        Mat m3 = new Mat();
+        // 中心点，旋转角度，缩放比例
+        Mat rotation_matix = Imgproc.getRotationMatrix2D(new Point( m1.width() / 2,m1.height()/2), 33, 1.0);
+        Imgproc.warpAffine(m1, m3, rotation_matix, m1.size(),Imgproc.INTER_NEAREST);
+        HighGui.imshow("png", m3);
+        HighGui.waitKey(0);
+    }
+```
+## 反射变换
+```java
+public static void main(String[] args) {
+        // 读取文件
+        Mat m1 = Imgcodecs.imread("image/person_and_dog_min.png");
+        // 定义结果
+        Mat m3 = new Mat();
+        // 定义输入点变换点
+        Point[] p1 = new Point[3];
+        p1[0] = new Point(0, 0);
+        p1[1] = new Point(m1.width(), 0);
+        p1[2] = new Point(0, 0 - m1.height());
+        Point[] p2 = new Point[3];
+        p2[0] = new Point(0, 0);
+        p2[1] = new Point(m1.width(), 0);
+        p2[2] = new Point(m1.width()/2, 0- m1.height());
+
+
+        // 创建变换矩阵
+        MatOfPoint2f f1 = new MatOfPoint2f(p1);
+        MatOfPoint2f f2 = new MatOfPoint2f(p2);
+        // 获取矩阵变换
+        Mat m2 = Imgproc.getAffineTransform(f1, f2);
+        // 开始变换
+        Imgproc.warper(m1, m3, m2, m1.size());
+        HighGui.imshow("png", m3);
+        HighGui.waitKey(0);
+    }
+```
+## 透视变换
+```java
+/**
+     * 图像的四个点对应的变换
+     * @param args
+     */
+    public static void main(String[] args) {
+        // 读取文件
+        Mat m1 = Imgcodecs.imread("image/person_and_dog_min.png");
+        // 定义结果
+        Mat m3 = new Mat();
+        // 定义输入点变换点
+        Point[] p1 = new Point[4];
+        p1[0] = new Point(0, 0);
+        p1[1] = new Point(1920, 0);
+        p1[2] = new Point(0, 1200);
+        p1[3] = new Point(1920, 1200);
+
+        Point[] p2 = new Point[4];
+        p2[0] = new Point(0, 0);
+        p2[1] = new Point(1920, 0);
+        p2[2] = new Point(10, 1200);
+        p2[3] = new Point(1920, 1200);
+
+        // 创建变换矩阵
+        MatOfPoint2f f1 = new MatOfPoint2f(p1);
+        MatOfPoint2f f2 = new MatOfPoint2f(p2);
+        // 获取矩阵变换
+        Mat m2 = Imgproc.getPerspectiveTransform(f1, f2);
+        // 开始变换
+        Imgproc.warpPerspective(m1, m3, m2, m1.size());
+        HighGui.imshow("png", m3);
+        HighGui.waitKey(0);
+    }
+```
+## 阈值化与二值图像
+```text
+Imgproc.threshold(Mat src,Mat dst,double thresh,double maxval,int type)
+其中type：二值化操作类型，包含下面物种，其中第一种最基本“
+Imgproc.THRESH_BINARY: 当像素值超过阈值thresh时取maxval，否则取0
+Imgproc.THRESH_BINARY_INV: THRESH_BINARY的反向操作
+Imgproc.THRESH_TRUNC: 大于阈值时设为阈值，否则不变
+Imgproc.THRESH_TOZERO: 大于阈值时不变，否则设为0
+Imgproc.THRESH_TOZERO_INV: THRESH_TOZERO的反向操作
+```
