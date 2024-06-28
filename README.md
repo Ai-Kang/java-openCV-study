@@ -318,9 +318,85 @@ public static void main(String[] args) {
 ```text
 Imgproc.threshold(Mat src,Mat dst,double thresh,double maxval,int type)
 其中type：二值化操作类型，包含下面物种，其中第一种最基本“
-Imgproc.THRESH_BINARY: 当像素值超过阈值thresh时取maxval，否则取0
-Imgproc.THRESH_BINARY_INV: THRESH_BINARY的反向操作
-Imgproc.THRESH_TRUNC: 大于阈值时设为阈值，否则不变
-Imgproc.THRESH_TOZERO: 大于阈值时不变，否则设为0
-Imgproc.THRESH_TOZERO_INV: THRESH_TOZERO的反向操作
+    Imgproc.THRESH_BINARY: 当像素值超过阈值thresh时取maxval，否则取0
+    Imgproc.THRESH_BINARY_INV: THRESH_BINARY的反向操作
+    Imgproc.THRESH_TRUNC: 大于阈值时设为阈值，否则不变
+    Imgproc.THRESH_TOZERO: 大于阈值时不变，否则设为0
+    Imgproc.THRESH_TOZERO_INV: THRESH_TOZERO的反向操作
+```
+```java
+public class Demo04 {
+    static {
+        // 加载C++库文件
+        String property = System.getProperty("user.dir");
+        System.load(property + "/lib/opencv/opencv_java4100.dll");
+    }
+
+    public static void main(String[] args) {
+        // 读取图片
+        Mat imread = Imgcodecs.imread("image/person_and_dog_min.png");
+        // 创建结果集
+        Mat result = new Mat();
+        //
+        /**
+         * 二值化处理
+         * Imgproc.THRESH_BINARY: 当像素值超过阈值thresh时取maxval，否则取0
+         * Imgproc.THRESH_BINARY_INV: THRESH_BINARY的反向操作
+         * Imgproc.THRESH_TRUNC: 大于阈值时设为阈值，否则不变
+         * Imgproc.THRESH_TOZERO: 大于阈值时不变，否则设为0
+         * Imgproc.THRESH_TOZERO_INV: THRESH_TOZERO的反向操作
+         */
+        Imgproc.threshold(imread, result, 0, 255, Imgproc.THRESH_BINARY);
+        // 显示图片
+        HighGui.imshow("result", result);
+        HighGui.waitKey();
+    }
+}
+```
+## 图像平滑
+```text
+椒盐噪声: 图像上很多白色点
+高斯噪声：概率密度函数服从高斯分布(正态分布)的一类噪声
+卷积核：权重矩阵
+```
+### 均值滤波
+![img.png](img.png)
+```text
+第一幅图解释：有一个像素点的值是9，周围是他周围的像素点值分布
+第二附图：代表均值卷积核，每个像素都是1/9
+第三幅图：九个像素的值都*1/9后相加结果等于5
+```
+```java
+public static void main(String[] args) {
+        // 读取图片
+        Mat imread = Imgcodecs.imread("image/person_and_dog_min.png");
+        Imgproc.blur(imread, imread, new Size(3, 3));
+        // 显示图片
+        HighGui.imshow("result", imread);
+        HighGui.waitKey();
+}
+```
+### 高斯滤波
+```java
+// 越靠近中心权重越高
+public static void main(String[] args) {
+    // 读取图片
+    Mat imread = Imgcodecs.imread("image/person_and_dog_min.png");
+    Imgproc.GaussianBlur(imread, imread, new Size(13, 13),10,10);
+    // 显示图片
+    HighGui.imshow("result", imread);
+    HighGui.waitKey();
+}
+```
+### 中值滤波
+```java
+// 去除椒盐噪声
+public static void main(String[] args) {
+    // 读取图片
+    Mat imread = Imgcodecs.imread("image/person_and_dog_min.png");
+    Imgproc.medianBlur(imread, imread, 3);
+    // 显示图片
+    HighGui.imshow("result", imread);
+    HighGui.waitKey();
+}
 ```
